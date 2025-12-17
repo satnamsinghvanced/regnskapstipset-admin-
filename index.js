@@ -8,8 +8,17 @@ const cron = require("./service/cronJob")
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
-
+app.use(
+  cors({
+    origin: [
+      "https://admin.regnskaptipset.no",
+      "https://regnskaptipset.no"
+    ],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true
+  })
+);
 
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ limit: "5mb", extended: true }));
@@ -28,7 +37,7 @@ mongoose
   .then(() => {
     console.log('✅ MongoDB connected');
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-    console.log('http://localhost:9090');
+    console.log(`http://localhost:${PORT}`);
   })
   .catch((err) => {
     console.error('❌ MongoDB connection error:', err.message);

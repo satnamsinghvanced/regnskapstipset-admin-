@@ -2,13 +2,13 @@ const County = require("../../../models/county");
 
 exports.createCounty = async (req, res) => {
   try {
-    const { name, slug, excerpt,  ...restOfData} = req.body;
+    const { name, slug, excerpt, companies, robots, ...restOfData } = req.body;
     if (!name || !slug) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
     const existing = await County.findOne({
-      $or: [{ name: name.trim() }, { slug: slug.trim() ,   ...restOfData}],
+      $or: [{ name: name.trim() }, { slug: slug.trim() }],
     });
 
     if (existing) {
@@ -16,13 +16,27 @@ exports.createCounty = async (req, res) => {
         .status(400)
         .json({ message: "County with that name or slug already exists." });
     }
+
+    // Parse companies and robots if sent as JSON strings
+    let parsedCompanies = [];
+    if (companies) {
+      parsedCompanies = typeof companies === "string" ? JSON.parse(companies) : companies;
+    }
+
+    let parsedRobots = {};
+    if (robots) {
+      parsedRobots = typeof robots === "string" ? JSON.parse(robots) : robots;
+    }
+
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
     const county = await County.create({
       name: name.trim(),
       slug: slug.trim(),
-      excerpt: excerpt.trim(),
+      excerpt: excerpt ? excerpt.trim() : "",
       icon: imagePath,
-       ...restOfData
+      companies: parsedCompanies,
+      robots: parsedRobots,
+      ...restOfData
     });
 
     res.status(201).json({
@@ -107,11 +121,29 @@ exports.getCountyById = async (req, res) => {
 
 exports.updateCounty = async (req, res) => {
   try {
-    const { name, slug, excerpt, icon , ...restOfData} = req.body;
+    const { name, slug, excerpt, companies, robots, ...restOfData } = req.body;
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+
+    const updatedFields = {
+      ...(name && { name }),
+      ...(slug && { slug }),
+      ...(excerpt !== undefined && { excerpt }),
+      ...(imagePath && { icon: imagePath }),
+      ...restOfData,
+    };
+
+    // Parse companies and robots if sent as JSON strings
+    if (companies) {
+      updatedFields.companies = typeof companies === "string" ? JSON.parse(companies) : companies;
+    }
+
+    if (robots) {
+      updatedFields.robots = typeof robots === "string" ? JSON.parse(robots) : robots;
+    }
+
     const county = await County.findByIdAndUpdate(
       req.params.id,
-      { name, slug, excerpt, icon: imagePath , ...restOfData},
+      updatedFields,
       { new: true, runValidators: true }
     );
 

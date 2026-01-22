@@ -14,7 +14,7 @@ const storage = multer.diskStorage({
 
     const baseName = path
       .basename(file.originalname, ext)
-      .replace(/\s+/g, "_")     
+      .replace(/\s+/g, "_")
       .replace(/[^a-zA-Z0-9_-]/g, "");
 
     const fileName = `${baseName}-${Date.now()}${ext}`;
@@ -28,8 +28,9 @@ const fileFilter = (req, file, cb) => {
     "image/jpg",
     "image/png",
     "image/webp",
-    "text/csv",
     "image/svg+xml",
+    "image/x-icon",
+    "text/csv",
     "application/vnd.ms-excel",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   ];
@@ -39,7 +40,7 @@ const fileFilter = (req, file, cb) => {
   } else {
     cb(
       new Error(
-        "Only JPEG, JPG, PNG, WEBP, SVG, CSV, XLS, XLSX files are allowed"
+        "Only JPEG, JPG, PNG, WEBP, SVG, ICO, CSV, XLS, XLSX files are allowed"
       ),
       false
     );

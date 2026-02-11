@@ -38,7 +38,7 @@ async function generateSitemap() {
     );
 
     const articleUrls = articles.map(
-      (a) => `${FRONTEND_URL}/articles/${a.categoryId?.slug}/${a.slug}`
+      (a) => `${FRONTEND_URL}/artikler/${a.categoryId?.slug}/${a.slug}`
     );
 
     const now = new Date().toISOString();
